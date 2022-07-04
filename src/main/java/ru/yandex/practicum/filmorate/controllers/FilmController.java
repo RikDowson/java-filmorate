@@ -46,6 +46,8 @@ public class FilmController {
         log.debug("Объект POST /film обновлён");
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
+        } else {
+            throw new ValidationException("Нет такого фильма");
         }
         return film;
     }

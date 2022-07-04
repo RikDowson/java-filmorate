@@ -47,6 +47,8 @@ public class UserController {
         log.debug("Объект POST /user обновлён");
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
+        } else {
+            throw new ValidationException("Нет такого пользователя");
         }
         return user;
     }
