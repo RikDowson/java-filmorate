@@ -25,8 +25,8 @@ public class UserControllerTest {
 
     @Test
     void createValidUserTest() throws Exception {
-        User user = new User(2,"eeei@inbox.ru","name", "login",
-                LocalDate.of(2022,1,12));
+        User user = new User(1,"mail@inbox.ru","name", "login",
+                LocalDate.of(2022,1,1));
         String json = objectMapper.writeValueAsString(user);
         this.mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -34,8 +34,8 @@ public class UserControllerTest {
 
     @Test
     void shouldCreateUserInValidEmail() throws Exception {
-        User user = new User(2,"hdhdkfgfg","name", "login",
-                LocalDate.of(2022,1,12));
+        User user = new User(1,"emailmail","name", "login",
+                LocalDate.of(2022,1,1));
         String json = objectMapper.writeValueAsString(user);
         this.mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -43,9 +43,9 @@ public class UserControllerTest {
 
     @Test
     void shouldCreateUserInValidName() throws Exception {
-        User user = new User(12,"email@inbox.ru","name0123456789101112131415161718192021222324drhhdrh",
+        User user = new User(1,"email@inbox.ru","name0123456789name0123456789name0123456789",
                 "login",
-                LocalDate.of(2022,1,12));
+                LocalDate.of(2022,1,1));
         String json = objectMapper.writeValueAsString(user);
         this.mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -53,8 +53,8 @@ public class UserControllerTest {
 
     @Test
     void shouldCreateUserInValidLogin() throws Exception {
-        User user = new User(2,"email@inbox.ru","name", "0123456789101112131415161718192021222324",
-                LocalDate.of(2022,1,12));
+        User user = new User(1,"email@inbox.ru","name", "name0123456789name0123456789name0123456789",
+                LocalDate.of(2022,1,1));
         String json = objectMapper.writeValueAsString(user);
         this.mockMvc.perform(post("/users").content(json).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -62,10 +62,10 @@ public class UserControllerTest {
 
     @Test
     void shouldPutUser() throws Exception {
-        User user = new User(2,"email@inbox.ru","name", "login",
-                LocalDate.of(2022,1,12));
+        User user = new User(1,"email@inbox.ru","name", "login",
+                LocalDate.of(2022,1,1));
         User user1 = new User(2,"email@inbox.ru","NAME", "login",
-                LocalDate.of(2022,1,12));
+                LocalDate.of(2022,1,1));
         String json1 = objectMapper.writeValueAsString(user1);
         this.mockMvc.perform(put("/users").content(json1).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());

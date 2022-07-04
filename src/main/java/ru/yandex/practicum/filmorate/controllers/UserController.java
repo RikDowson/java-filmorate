@@ -6,54 +6,67 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
-    private final List<User> users = new ArrayList<>();
+    private final Map<Integer, User> users = new HashMap<>();
+    protected int countId = 1;
 
+    public int generateUserId() {
+        return countId++;
+    }
 
     @GetMapping                       // получение списка всех пользователей
-    public List<User> findAll() {
-        log.info("Текущее количество пользователей: {}", users.size());  // логируем факт получения запроса
-        return users;
+    public Collection<User> findAll() throws ValidationException  {
+        log.debug("Текущее количество пользователей: {}", users.size());  // логируем факт получения запроса
+        return users.values();
     }
 
     @PostMapping                     // создание пользователя
-    public User create(@RequestBody User user) {
-        if (user.getEmail().isBlank() || !(user.getEmail().contains("@"))) {
-            throw new ValidationException("Ошибка! Электронная почта не может быть пустой и должна содержать символ @");
-        } else if (user.getLogin().isBlank()) {
-            throw new ValidationException("Ошибка! Логин не может быть пустым и содержать пробелы");
-        } else if (user.getName().isEmpty()) {
-            System.out.println(user.getLogin());    // ???
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Ошибка! Дата рождения не может быть в будущем.");
-        }
-        log.info("Объект POST /user сохранен");
-        users.add(user);
+    public User create(@Valid @RequestBody User user) throws ValidationException {
+        validatorUser(user);
+        int id = generateUserId();
+        user.setId(id);
+        log.debug("Добавлен новый пользователь {}{}", id, user.getLogin());
+        users.put(user.getId(), user);
         return user;
     }
 
     @PutMapping                     // обновление пользователя
-    public User put(@RequestBody User user) {
-        if (user.getEmail().isBlank() || !(user.getEmail().contains("@"))) {
-            throw new ValidationException("Ошибка! Электронная почта не может быть пустой и должна содержать символ \"@\"");
-        } else if (user.getLogin().isBlank()) {
-            throw new ValidationException("Ошибка! Логин не может быть пустым и содержать пробелы");
-        } else if (user.getName().isEmpty()) { //имя для отображения может быть пустым — в таком случае будет использован логин
-            System.out.println(user.getLogin());    // ???
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Ошибка! Дата рождения не может быть в будущем.");
+    public User put(@Valid @RequestBody User user) throws ValidationException {
+        log.error(String.valueOf((user)));
+        validatorUser(user);
+        log.debug("Объект POST /user обновлён");
+        if (users.containsKey(user.getId())) {
+            users.put(user.getId(), user);
         }
-        log.info("Объект POST /user обновлён");
-        users.add(user);
         return user;
     }
 
+    public void validatorUser(User userVal) {
+        if (userVal.getEmail().isBlank() || !(userVal.getEmail().contains("@"))) {
+            log.debug("Электронная почта не может быть пустой и должна содержать символ \"@\"");
+            throw new ValidationException("Ошибка! Электронная почта не может быть пустой и должна содержать символ \"@\"");
+        }
+        if (userVal.getLogin().isBlank()) {
+            log.debug("Логин не может быть пустым и содержать пробелы");
+            throw new ValidationException("Ошибка! Логин не может быть пустым и содержать пробелы");
+        }
+        if (userVal.getName().isEmpty() || userVal.getName() == null) {
+            log.debug("Имя для отображения может быть пустым — в таком случае будет использован логин");
+            userVal.setName(userVal.getLogin());
+        }
+        if (userVal.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Ошибка! Дата рождения не может быть в будущем.");
+        }
+    }
 }
+
