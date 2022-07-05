@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 
@@ -12,8 +13,10 @@ public class User {
     private int id;
     @Email
     private String email;
+    @Pattern(regexp = "^\\S*$")
     @Size(max = 30, message = "Имя не может быть больше тридцати символов")
     private String name;
+    @Pattern(regexp = "^\\S*$")
     @Size(max = 30, message = "Имя не может быть больше тридцати символов")
     private String login;
     private LocalDate birthday;
