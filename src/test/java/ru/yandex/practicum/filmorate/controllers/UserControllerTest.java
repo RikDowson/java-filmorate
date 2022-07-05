@@ -60,14 +60,12 @@ public class UserControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void shouldPutUser() throws Exception {
-        User user = new User(1,"email@inbox.ru","name", "login",
-                LocalDate.of(2022,1,1));
-        User user1 = new User(2,"email@inbox.ru","NAME", "login",
-                LocalDate.of(2022,1,1));
-        String json1 = objectMapper.writeValueAsString(user1);
-        this.mockMvc.perform(put("/users").content(json1).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
+//    @Test
+//    void shouldPutUser() throws Exception {
+//        User user = new User(1,"email@inbox.ru","name", "login", LocalDate.of(2022,1,1));
+//        User user1 = new User(2,"email@inbox.ru","NAME", "login", LocalDate.of(2022,1,1));
+//        String json1 = objectMapper.writeValueAsString(user1);
+//        this.mockMvc.perform(put("/users").content(json1).contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk());
+//    }
 }

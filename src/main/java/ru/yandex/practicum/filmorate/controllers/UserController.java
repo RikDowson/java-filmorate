@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -32,7 +34,7 @@ public class UserController {
 
     @PostMapping                     // создание пользователя
     public User create(@Valid @RequestBody User user) throws ValidationException {
-        validatorUser(user);
+        validation(user);
         int id = generateUserId();
         user.setId(id);
         log.debug("Добавлен новый пользователь {}{}", id, user.getLogin());
@@ -43,7 +45,7 @@ public class UserController {
     @PutMapping                     // обновление пользователя
     public User put(@Valid @RequestBody User user) throws ValidationException {
         log.error(String.valueOf((user)));
-        validatorUser(user);
+        validation(user);
         log.debug("Объект POST /user обновлён");
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
@@ -53,7 +55,7 @@ public class UserController {
         return user;
     }
 
-    public void validatorUser(User userVal) {
+    public void validation(User userVal) {
         if (userVal.getEmail().isBlank() || !(userVal.getEmail().contains("@"))) {
             log.debug("Электронная почта не может быть пустой и должна содержать символ \"@\"");
             throw new ValidationException("Ошибка! Электронная почта не может быть пустой и должна содержать символ \"@\"");

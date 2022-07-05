@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
@@ -34,7 +36,7 @@ public class FilmController {
     public Film create(@Valid @RequestBody Film film)  throws ValidationException {
         int id = generateFilmId();
         film.setId(id);
-        validatorFilm(film);
+        validation(film);
         log.debug("Добавлен новый фильм: {}{}", id, film.getName());
         films.put(film.getId(), film);
         return film;
@@ -42,7 +44,7 @@ public class FilmController {
 
     @PutMapping                             // обновление фильма
     public Film put(@Valid @RequestBody Film film)  throws ValidationException {
-        validatorFilm(film);
+        validation(film);
         log.debug("Объект POST /film обновлён");
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
@@ -52,7 +54,7 @@ public class FilmController {
         return film;
     }
 
-    public void validatorFilm (Film filmVal) {
+    public void validation(Film filmVal) {
         if (filmVal.getName() == null || filmVal.getName().isBlank()) {
             log.debug("Название фильма не может быть пустым");
             throw new ValidationException("Ошибка ввода! Название фильма не может быть пустым.");
