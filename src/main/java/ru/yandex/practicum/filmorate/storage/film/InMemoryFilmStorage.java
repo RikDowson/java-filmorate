@@ -4,17 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.yandex.practicum.filmorate.controllers.FilmController;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +17,7 @@ import java.util.Map;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    //    private static final Logger log = LoggerFactory.getLogger(FilmController.class);  // Loger
+//    private static final Logger log = LoggerFactory.getLogger(FilmController.class);  // Loger
     private final Map<Integer, Film> films = new HashMap<>();
     protected Integer countId = 1;
 

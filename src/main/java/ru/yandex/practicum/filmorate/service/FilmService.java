@@ -16,10 +16,11 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
 
-    @Autowired
+    @Autowired          // Автоматически внедряем зависимость filmStorage
     public FilmService(FilmStorage filmStorage) {
         this.filmStorage = filmStorage;
     }
+
 
 //------------------------------ ВЗАИМОДЕЙСТВИЕ С ФИЛЬМОМ --------------------------------------------------------------
     public Map<Integer, Film> findAllFilms() {   // получение всех фильмов
@@ -38,6 +39,7 @@ public class FilmService {
         filmStorage.removeFilm(id);
     }
 
+
 //--------------------------------------- ЛАЙКИ ------------------------------------------------------------------------
     public void addLike(Integer filmId, Integer userId) {       // Добавить Лайк
         if (!filmStorage.getAllFilms().containsKey(filmId)) {
@@ -55,6 +57,7 @@ public class FilmService {
         }
         filmStorage.getAllFilms().get(filmId).getLikes().remove(userId);
     }
+
 
 //---------------------------------- ТОП 10 ФИЛЬМОВ --------------------------------------------------------------------
     public Collection<Film> getTopTenFilms(Integer count) {
