@@ -6,11 +6,11 @@ import java.util.Map;
 
 public interface UserStorage {
 
-    Map<Integer, User> getAllUsers();   //  Получить всех пользователей
+    Map<Integer, User> getAll();   //  Получить всех пользователей
 
-    User addUser(User user);            //  Создать пользователя
+    User add(User user);            //  Создать пользователя
 
-    User updateUser(User user);         //  Обновить пользователя
+    User update(User user);         //  Обновить пользователя
 
-    void removeUser(Integer id);        //  Удалить пользователя
+    void remove(Integer id);        //  Удалить пользователя
 }

@@ -11,7 +11,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
@@ -23,59 +22,59 @@ public class FilmService {
 
 
 //------------------------------ ВЗАИМОДЕЙСТВИЕ С ФИЛЬМОМ --------------------------------------------------------------
-    public Map<Integer, Film> findAllFilms() {   // получение всех фильмов
-        return filmStorage.getAllFilms();
+    public Map<Integer, Film> findAll() {   // получение всех фильмов
+        return filmStorage.getAll();
     }
 
-    public Film addFilm(Film film) {             // добавление фильма
-        return filmStorage.addFilm(film);
+    public Film add(Film film) {             // добавление фильма
+        return filmStorage.add(film);
     }
 
-    public Film updateFilm(Film film) {          // обновление фильма
-        return filmStorage.updateFilm(film);
+    public Film update(Film film) {          // обновление фильма
+        return filmStorage.update(film);
     }
 
-    public void removeFilm(Integer id) {         // удаление фильма
-        filmStorage.removeFilm(id);
+    public void remove(Integer id) {         // удаление фильма
+        filmStorage.remove(id);
     }
 
 
 //--------------------------------------- ЛАЙКИ ------------------------------------------------------------------------
     public void addLike(Integer filmId, Integer userId) {       // Добавить Лайк
-        if (!filmStorage.getAllFilms().containsKey(filmId)) {
+        if (!filmStorage.getAll().containsKey(filmId)) {
             throw new NotFoundException("Фильм " + filmId);
         }
-        filmStorage.getAllFilms().get(filmId).getLikes().add(userId);
+        filmStorage.getAll().get(filmId).getLikes().add(userId);
     }
 
     public void removeLike(Integer filmId, Integer userId) {    // Удалить Лайк
-        if (!filmStorage.getAllFilms().containsKey(filmId)) {
+        if (!filmStorage.getAll().containsKey(filmId)) {
             throw new NotFoundException("Фильм " + filmId);
         }
         if (!getFilm(filmId).getLikes().contains(userId)) {
             throw new NotFoundException("Лайк пользователя " + userId);
         }
-        filmStorage.getAllFilms().get(filmId).getLikes().remove(userId);
+        filmStorage.getAll().get(filmId).getLikes().remove(userId);
     }
 
 
 //---------------------------------- ТОП 10 ФИЛЬМОВ --------------------------------------------------------------------
     public Collection<Film> getTopTenFilms(Integer count) {
-        if (count > 0 && count < filmStorage.getAllFilms().size()) {
-            return filmStorage.getAllFilms().values().stream()
+        if (count > 0 && count < filmStorage.getAll().size()) {
+            return filmStorage.getAll().values().stream()
                     .sorted((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size()))
                     .limit(count).collect(Collectors.toList());
         }
-        return filmStorage.getAllFilms().values().stream()
+        return filmStorage.getAll().values().stream()
                 .sorted((film1, film2) -> Integer.compare(film2.getLikes().size(), film1.getLikes().size()))
-                .limit(filmStorage.getAllFilms().size()).collect(Collectors.toList());
+                .limit(filmStorage.getAll().size()).collect(Collectors.toList());
     }
 
 //----------------------------------------------------------------------------------------------------------------------
-    public Film getFilm(Integer id) {                     // Получение фильма по id
-        if (!filmStorage.getAllFilms().containsKey(id)) {
+    public Film getFilm(Integer id) {                     // Получение по id
+        if (!filmStorage.getAll().containsKey(id)) {
             throw new NotFoundException("Фильм c id " + id + " не найден");
         }
-        return filmStorage.getAllFilms().get(id);
+        return filmStorage.getAll().get(id);
     }
 }

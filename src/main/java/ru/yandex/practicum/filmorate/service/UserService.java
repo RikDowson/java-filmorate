@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 
-@Slf4j
 @Service
 public class UserService {
     private final UserStorage userStorage;
@@ -20,30 +19,30 @@ public class UserService {
     }
 
 //------------------------------ ВЗАИМОДЕЙСТВИЕ С ПОЛЬЗОВАТЕЛЕМ --------------------------------------------------------
-    public Map<Integer, User> findAllUsers() {  // получение списка всех пользователей
-        return userStorage.getAllUsers();
+    public Map<Integer, User> findAll() {  // получение списка всех пользователей
+        return userStorage.getAll();
     }
 
-    public User addUser(User user) {            // создание пользователя
-        return userStorage.addUser(user);
+    public User add(User user) {            // создание пользователя
+        return userStorage.add(user);
     }
 
-    public User updateUser(User user) {         // обновление пользователя
-        return userStorage.updateUser(user);
+    public User update(User user) {         // обновление пользователя
+        return userStorage.update(user);
     }
 
-    public void removeUser(Integer id) {        // Удаление пользователя
-        userStorage.removeUser(id);
+    public void remove(Integer id) {        // Удаление пользователя
+        userStorage.remove(id);
     }
 
 //------------------------------ ДРУЗЬЯ ПОЛУЧИТЬ/ДОБАВИТЬ/УДАЛИТЬ ------------------------------------------------------
     public User addFriend(Integer id, Integer friendId) {          // Добавить друга
-        Map<Integer, User> userMap = userStorage.getAllUsers();
+        Map<Integer, User> userMap = userStorage.getAll();
 
-        if (!userStorage.getAllUsers().containsKey(id)) {
+        if (!userStorage.getAll().containsKey(id)) {
             throw new NotFoundException("Пользователь с id " + id + " не найден");
         }
-        if (!userStorage.getAllUsers().containsKey(friendId)) {
+        if (!userStorage.getAll().containsKey(friendId)) {
             throw new NotFoundException("Друг с id " + friendId + " не найден");
         }
         userMap.get(id).getFriend().add(friendId);   // если Лена стала другом Саши, то это значит, что Саша теперь друг Лены.
@@ -52,12 +51,12 @@ public class UserService {
     }
 
     public void removeFriend(Integer id, Integer removeFromId) {    // Удалить друга
-        Map<Integer, User> userMap = userStorage.getAllUsers();
+        Map<Integer, User> userMap = userStorage.getAll();
 
-        if (!userStorage.getAllUsers().containsKey(id)) {
+        if (!userStorage.getAll().containsKey(id)) {
             throw new NotFoundException("пользователь " + id);
         }
-        if (!userStorage.getAllUsers().containsKey(removeFromId)) {
+        if (!userStorage.getAll().containsKey(removeFromId)) {
             throw new NotFoundException("пользователь " + removeFromId);
         }
         userMap.get(id).getFriend().remove(removeFromId);
@@ -67,12 +66,12 @@ public class UserService {
     public Collection<User> getFriendsOfUser(Integer id) {          // Получить друзей пользователя
         List<User> friends = new ArrayList<>();
 
-        if (!userStorage.getAllUsers().containsKey(id)) {
+        if (!userStorage.getAll().containsKey(id)) {
             throw new NotFoundException("пользователь " + id);
         }
-        Set<Integer> userSet = userStorage.getAllUsers().get(id).getFriend();
+        Set<Integer> userSet = userStorage.getAll().get(id).getFriend();
         for (Integer user : userSet) {
-            friends.add(userStorage.getAllUsers().get(user));
+            friends.add(userStorage.getAll().get(user));
         }
         return friends;
     }
@@ -80,17 +79,17 @@ public class UserService {
     public Collection<User> getMutualFriends(Integer id, Integer id1) {     // Получить общих друзей
         List<User> friendNames = new ArrayList<>();
 
-        if (!userStorage.getAllUsers().containsKey(id)) {
+        if (!userStorage.getAll().containsKey(id)) {
             throw new NotFoundException("пользователь " + id);
         }
-        if (!userStorage.getAllUsers().containsKey(id1)) {
+        if (!userStorage.getAll().containsKey(id1)) {
             throw new NotFoundException("пользователь " + id1);
         }
-        Set<Integer> userSet = userStorage.getAllUsers().get(id).getFriend();
-        Set<Integer> userSet1 = userStorage.getAllUsers().get(id1).getFriend();
+        Set<Integer> userSet = userStorage.getAll().get(id).getFriend();
+        Set<Integer> userSet1 = userStorage.getAll().get(id1).getFriend();
         for (Integer user : userSet) {
             if (userSet1.contains(user)) {
-                friendNames.add(userStorage.getAllUsers().get(user));
+                friendNames.add(userStorage.getAll().get(user));
             }
         }
         return friendNames;
@@ -98,10 +97,10 @@ public class UserService {
 
 //----------------------------------------------------------------------------------------------------------------------
     public User getUser(Integer id) {           // Получение пользователя по id
-        if (!userStorage.getAllUsers().containsKey(id)) {
+        if (!userStorage.getAll().containsKey(id)) {
             throw new NotFoundException("пользователь " + id);
         }
-        return userStorage.getAllUsers().get(id);
+        return userStorage.getAll().get(id);
     }
 
 }

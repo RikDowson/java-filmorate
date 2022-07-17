@@ -1,19 +1,12 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -27,7 +20,7 @@ public class UserController {
 
     @GetMapping                       // получение списка всех пользователей
     public Collection<User> findAllUsers() {
-        return userService.findAllUsers().values();
+        return userService.findAll().values();
     }
 
     @GetMapping("/{id}")              // получение пользователя по id
@@ -37,15 +30,15 @@ public class UserController {
 
     @PostMapping                     // создание пользователя
     public User addUser(@Valid @RequestBody User user) {
-        return userService.addUser(user);
+        return userService.add(user);
     }
 
     @PutMapping                     // обновление пользователя
     public User updateUser(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+        return userService.update(user);
     }
 
-//----------------------------------------------------------------------------------------------------------------------
+//------------------------------------------- REST ---------------------------------------------------------------------
     @PutMapping("/{id}/friends/{friendId}")  // обновление пользователя по id
     public User addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
         return userService.addFriend(id, friendId);

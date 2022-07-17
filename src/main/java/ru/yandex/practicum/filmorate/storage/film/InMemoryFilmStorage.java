@@ -17,7 +17,6 @@ import java.util.Map;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-//    private static final Logger log = LoggerFactory.getLogger(FilmController.class);  // Loger
     private final Map<Integer, Film> films = new HashMap<>();
     protected Integer countId = 1;
 
@@ -27,25 +26,25 @@ public class InMemoryFilmStorage implements FilmStorage {
 
 
     // получение всех фильмов
-    public Map<Integer, Film> getAllFilms() throws ValidationException {
-        log.debug("Общее количество фильмов: {}", films.size());  // логируем факт получения запроса
+    public Map<Integer, Film> getAll() throws ValidationException {
+        log.info("Общее количество фильмов: {}", films.size());  // логируем факт получения запроса
         return films;
     }
 
     // добавление фильма
-    public Film addFilm(@Valid @RequestBody Film film) throws ValidationException {
+    public Film add(@Valid @RequestBody Film film) throws ValidationException {
         int id = generateFilmId();
         film.setId(id);
         validation(film);
-        log.debug("Добавлен новый фильм: {}{}", id, film.getName());
+        log.info("Добавлен новый фильм: {}{}", id, film.getName());
         films.put(film.getId(), film);
         return film;
     }
 
     // обновление фильма
-    public Film updateFilm(@Valid @RequestBody Film film) throws ValidationException {
+    public Film update(@Valid @RequestBody Film film) throws ValidationException {
         validation(film);
-        log.debug("Объект POST /film обновлён");
+        log.info("Объект POST /film обновлён");
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
         } else {
@@ -55,26 +54,26 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     // удаление фильма
-    public void removeFilm(Integer id) {
+    public void remove(Integer id) {
         films.remove(id);
-        log.debug("Удален фильм {}.", id);
+        log.info("Удален фильм {}.", id);
     }
 
     public void validation(Film filmVal) {
         if (filmVal.getName() == null || filmVal.getName().isBlank()) {
-            log.debug("Название фильма не может быть пустым");
+            log.info("Название фильма не может быть пустым");
             throw new ValidationException("Ошибка ввода! Название фильма не может быть пустым.");
         }
         if (filmVal.getDescription().length() > 200) {
-            log.debug("Максимальная длина описания — 200 символов");
+            log.info("Максимальная длина описания — 200 символов");
             throw new ValidationException("Ошибка ввода! Максимальная длина описания — 200 символов");
         }
         if (filmVal.getReleaseDate().isBefore(LocalDate.of(1895, 12, 27))) {
-            log.debug("Дата релиза — не раньше 28 декабря 1895 года");
+            log.info("Дата релиза — не раньше 28 декабря 1895 года");
             throw new ValidationException("Ошибка ввода! Дата релиза — не раньше 28 декабря 1895 года");
         }
         if (filmVal.getDuration() <= 0) {
-            log.debug("Продолжительность фильма должна быть положительной");
+            log.info("Продолжительность фильма должна быть положительной");
             throw new ValidationException("Ошибка ввода! продолжительность фильма должна быть положительной.");
         }
     }

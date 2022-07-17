@@ -6,11 +6,11 @@ import java.util.Map;
 
 public interface FilmStorage {
 
-    Map<Integer, Film> getAllFilms(); // Получить все фильмы
+    Map<Integer, Film> getAll(); // Получить все фильмы
 
-    Film addFilm(Film film);          // Добавить фильм
+    Film add(Film film);          // Добавить фильм
 
-    Film updateFilm(Film film);       // Обновить фильм
+    Film update(Film film);       // Обновить фильм
 
-    void removeFilm(Integer id);      // Удалить фильм
+    void remove(Integer id);      // Удалить фильм
 }
