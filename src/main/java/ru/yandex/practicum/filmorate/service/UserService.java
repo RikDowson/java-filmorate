@@ -2,24 +2,46 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
+    public static void checkUser(User user) {
+        String email = user.getEmail();
+        if (email == null || email.isBlank() || !email.contains("@")) {
+            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @!");
+        }
+        String login = user.getLogin();
+        if (login == null || login.isBlank() || login.contains(" ")) {
+            throw new ValidationException("Логин не может быть пустым и содержать пробелы!");
+        }
+        String name = user.getName();
+        if (name == null || name.isBlank()) {
+            user.setName(login);
+        }
+        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
+            throw new ValidationException("Дата рождения не может быть в будущем!");
+        }
+    }
+
 //------------------------------ ВЗАИМОДЕЙСТВИЕ С ПОЛЬЗОВАТЕЛЕМ --------------------------------------------------------
-    public Map<Integer, User> findAll() {  // получение списка всех пользователей
+    public List<User> findAll() {  // получение списка всех пользователей
         return userStorage.getAll();
     }
 
@@ -31,76 +53,59 @@ public class UserService {
         return userStorage.update(user);
     }
 
-    public void remove(Integer id) {        // Удаление пользователя
-        userStorage.remove(id);
-    }
-
 //------------------------------ ДРУЗЬЯ ПОЛУЧИТЬ/ДОБАВИТЬ/УДАЛИТЬ ------------------------------------------------------
     public User addFriend(Integer id, Integer friendId) {          // Добавить друга
-        Map<Integer, User> userMap = userStorage.getAll();
-
-        if (!userStorage.getAll().containsKey(id)) {
-            throw new NotFoundException("Пользователь с id " + id + " не найден");
+        User user = getUser(id);
+        User friend = getUser(friendId);
+        if (!user.getFriends().contains(friendId)) {
+            userStorage.addFriend(id, friendId);
         }
-        if (!userStorage.getAll().containsKey(friendId)) {
-            throw new NotFoundException("Друг с id " + friendId + " не найден");
+        if (friend.getFriends().contains(id)) {
+            userStorage.confirmFriend(id, friendId);
+            userStorage.confirmFriend(friendId, id);
         }
-        userMap.get(id).getFriend().add(friendId);   // если Лена стала другом Саши, то это значит, что Саша теперь друг Лены.
-        userMap.get(friendId).getFriend().add(id);
-        return getUser(friendId);
+        return user;
     }
 
-    public void removeFriend(Integer id, Integer removeFromId) {    // Удалить друга
-        Map<Integer, User> userMap = userStorage.getAll();
-
-        if (!userStorage.getAll().containsKey(id)) {
-            throw new NotFoundException("пользователь " + id);
+    public User removeFriend(Integer id, Integer friendId) {    // Удалить друга
+        User user = getUser(id);
+        User friend = getUser(friendId);
+        if (user.getFriends().contains(friendId)) {
+            userStorage.deleteFriend(id, friendId);
+            userStorage.deleteFriend(friendId, id);
         }
-        if (!userStorage.getAll().containsKey(removeFromId)) {
-            throw new NotFoundException("пользователь " + removeFromId);
-        }
-        userMap.get(id).getFriend().remove(removeFromId);
-        userMap.get(removeFromId).getFriend().remove(id);
+        return user;
     }
 
-    public Collection<User> getFriendsOfUser(Integer id) {          // Получить друзей пользователя
-        List<User> friends = new ArrayList<>();
-
-        if (!userStorage.getAll().containsKey(id)) {
-            throw new NotFoundException("пользователь " + id);
-        }
-        Set<Integer> userSet = userStorage.getAll().get(id).getFriend();
-        for (Integer user : userSet) {
-            friends.add(userStorage.getAll().get(user));
-        }
-        return friends;
+    public List<User> getFriendsOfUser(Integer id) {          // Получить друзей пользователя
+        User user = getUser(id);
+        return user.getFriends()
+                .stream()
+                .map(this::getUser)
+                .collect(Collectors.toList());
     }
 
-    public Collection<User> getMutualFriends(Integer id, Integer id1) {     // Получить общих друзей
-        List<User> friendNames = new ArrayList<>();
-
-        if (!userStorage.getAll().containsKey(id)) {
-            throw new NotFoundException("пользователь " + id);
-        }
-        if (!userStorage.getAll().containsKey(id1)) {
-            throw new NotFoundException("пользователь " + id1);
-        }
-        Set<Integer> userSet = userStorage.getAll().get(id).getFriend();
-        Set<Integer> userSet1 = userStorage.getAll().get(id1).getFriend();
-        for (Integer user : userSet) {
-            if (userSet1.contains(user)) {
-                friendNames.add(userStorage.getAll().get(user));
-            }
-        }
-        return friendNames;
+    public List<User> getMutualFriends(Integer id, Integer id1) {     // Получить общих друзей
+        User user1 = getUser(id);
+        User user2 = getUser(id1);
+        return user1.getFriends()
+                .stream()
+                .filter(user2.getFriends()::contains)
+                .map(this::getUser)
+                .collect(Collectors.toList());
     }
 
 //----------------------------------------------------------------------------------------------------------------------
     public User getUser(Integer id) {           // Получение пользователя по id
-        if (!userStorage.getAll().containsKey(id)) {
-            throw new NotFoundException("пользователь " + id);
+        return userStorage.getFindById(id).orElseThrow(
+                () -> new NotFoundException("Пользователя с id = " + id + " не существует!")
+        );
+    }
+
+    public void checkUserForExist(Integer id) {
+        if (!userStorage.isUserExist(id)) {
+            throw new NotFoundException("Пользователя с id = " + id + " не существует!");
         }
-        return userStorage.getAll().get(id);
     }
 
 }

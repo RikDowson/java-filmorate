@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -19,8 +20,8 @@ public class UserController {
     }
 
     @GetMapping                       // получение списка всех пользователей
-    public Collection<User> findAllUsers() {
-        return userService.findAll().values();
+    public List<User> findAllUsers() {
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")              // получение пользователя по id

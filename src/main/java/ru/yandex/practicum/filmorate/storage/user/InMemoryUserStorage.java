@@ -10,8 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Slf4j
@@ -26,9 +25,14 @@ public class InMemoryUserStorage implements UserStorage {
 
 
     // Получение списка всех пользователей
-    public Map<Integer, User> getAll() throws ValidationException {
+    public List<User> getAll() throws ValidationException {
         log.info("Текущее количество пользователей: {}", users.size());  // логируем факт получения запроса
-        return users;
+        return new ArrayList<>(users.values());
+    }
+
+    // Получение пользователя по ID
+    public Optional<User> getFindById(Integer id) {
+        return Optional.ofNullable(users.get(id));
     }
 
     // Создание пользователя
@@ -54,13 +58,28 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    // Удаление пользователя
-    public void remove(Integer id) {
-        users.remove(id);
-        log.info("Удален пользователь {}", id);
+//----------------------------------------------------------------------------------------------------------------------
+public void addFriend(Integer userId, Integer friendId) {
+    getFindById(userId).get().addFriend(friendId);
+    log.debug("Добавлен для пользователя c id {} друг с id {}", userId, friendId);
+}
+
+    @Override
+    public void confirmFriend(Integer userId, Integer friendId) {
     }
 
+    @Override
+    public boolean isUserExist(Integer id) {
+        return users.containsKey(id);
+    }
 
+    @Override
+    public void deleteFriend(Integer userId, Integer friendId) {
+        getFindById(userId).get().deleteFriend(friendId);
+        log.debug("Удален для пользователя c id {} друг с id {}", userId, friendId);
+    }
+
+//------------------------------ ВАЛИДАЦИЯ -----------------------------------------------------------------------------
     public void validation(User userVal) {
         if (userVal.getEmail().isBlank() || !(userVal.getEmail().contains("@"))) {
             log.info("Электронная почта не может быть пустой и должна содержать символ \"@\"");

@@ -10,8 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 @Slf4j
@@ -26,9 +25,14 @@ public class InMemoryFilmStorage implements FilmStorage {
 
 
     // получение всех фильмов
-    public Map<Integer, Film> getAll() throws ValidationException {
+    public List<Film> getAll() throws ValidationException {
         log.info("Общее количество фильмов: {}", films.size());  // логируем факт получения запроса
-        return films;
+        return new ArrayList<>(films.values());
+    }
+
+    // получение фильма по id
+    public Optional<Film> getById(Integer id) {
+        return Optional.ofNullable(films.get(id));
     }
 
     // добавление фильма
@@ -53,10 +57,18 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    // удаление фильма
-    public void remove(Integer id) {
-        films.remove(id);
-        log.info("Удален фильм {}.", id);
+    public void addLike(Integer filmId, Integer userId) {
+        getById(filmId).get().addLike(userId);
+        log.debug("Лайк для фильма c id {}, пользователя с id {} Добавлен", countId, userId);
+    }
+
+    public void deleteLike(Integer filmId, Integer userId) {
+        getById(filmId).get().deleteLike(userId);
+        log.debug("Лайк для фильма c id {}, пользователя с id {} Удален", countId, userId);
+    }
+
+    public boolean isFilmExist(Integer id) {
+        return films.containsKey(id);
     }
 
     public void validation(Film filmVal) {
