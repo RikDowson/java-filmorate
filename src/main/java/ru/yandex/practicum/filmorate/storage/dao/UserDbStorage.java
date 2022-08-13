@@ -20,11 +20,15 @@ public class UserDbStorage implements UserStorage {
 //--------------------------------------- КОНСТАНТЫ --------------------------------------------------------------------
     private static final String SQL_GET_ALL_USERS = "SELECT * FROM PUBLIC.USERS ORDER BY ID;";
     private static final String SQL_GET_BY_ID_USERS = "SELECT * FROM PUBLIC.USERS WHERE ID = ?;";
-    private static final String SQL_CREATE_USER = "INSERT INTO PUBLIC.USERS (EMAIL, LOGIN, NAME, BIRTHDAY)" +
+    private static final String SQL_CREATE_USER = "INSERT INTO PUBLIC.USERS (EMAIL, NAME, LOGIN, BIRTHDAY)" +
             " VALUES (?, ?, ?, ?);";
-    private static final String SQL_UPDATE_USER =  "UPDATE PUBLIC.USERS SET EMAIL = ?, LOGIN = ?, NAME = ?, " +
-            "BIRTHDAY = ? " +
-            "WHERE id = ?;";
+    private static final String SQL_UPDATE_USER =  "UPDATE PUBLIC.USERS SET " +
+            "ID = ?," +
+            "EMAIL = ?, " +
+            "NAME = ?, " +
+            "LOGIN = ?, " +
+            "BIRTHDAY = ?; "
+            ;
     private static final String SQL_ADD_FREND = "INSERT INTO PUBLIC.FRIENDS (USER_ID, FRIEND_ID) VALUES (?, ?);";
     private static final String SQL_CONFIRM = "UPDATE PUBLIC.FRIENDS SET IS_CONFIRMED = ?" +
             "WHERE USER_ID = ? AND FRIEND_ID = ?;";
@@ -68,8 +72,8 @@ public class UserDbStorage implements UserStorage {
             PreparedStatement ps = connection
                     .prepareStatement(SQL_CREATE_USER, new String[]{"id"});
             ps.setString(1, user.getEmail());
-            ps.setString(2, user.getLogin());
-            ps.setString(3, user.getName());
+            ps.setString(2, user.getName());
+            ps.setString(3, user.getLogin());
             ps.setString(4, user.getBirthday().toString());
             return ps;
         }, keyHolder);
@@ -81,7 +85,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User update(User user) {
         jdbcTemplate.update(SQL_UPDATE_USER,
-                user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
+                user.getId(), user.getEmail(), user.getName(), user.getLogin(), user.getBirthday());
         user.setFriends(getFriendsById(user.getId()));
         return user;
     }
@@ -126,8 +130,8 @@ public class UserDbStorage implements UserStorage {
     private User makeUser(ResultSet rs) throws SQLException {
         return new User(rs.getInt("id"),
                 rs.getString("email"),
-                rs.getString("login"),
                 rs.getString("name"),
+                rs.getString("login"),
                 rs.getDate("birthday").toLocalDate(),
                 null
         );

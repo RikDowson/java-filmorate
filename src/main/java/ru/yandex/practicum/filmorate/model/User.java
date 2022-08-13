@@ -15,7 +15,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
-
     private Integer id;
     @Email
     private String email;

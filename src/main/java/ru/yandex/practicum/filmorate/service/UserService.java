@@ -38,6 +38,7 @@ public class UserService {
     }
 
     public User update(User user) {         // обновление пользователя
+        checkUserForExist(user.getId());
         checkUser(user);
         return userStorage.update(user);
     }
@@ -94,7 +95,7 @@ public class UserService {
             throw new ValidationException("Логин не может быть пустым и содержать пробелы!");
         }
         String name = user.getName();
-        if (name == null || name.isBlank()) {
+        if (name == null || name.isBlank() || name.isEmpty()) {
             user.setName(login);
         }
         if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
