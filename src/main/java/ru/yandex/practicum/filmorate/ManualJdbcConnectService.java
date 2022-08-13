@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ManualJdbcConnectService {
 
-    /** Внутри этого класса необходимо описать КОНСТАНТЫ с адресом и параметрами подключения. Например, вот так: */
+    /** Внутри этого класса необходимо описать КОНСТАНТЫ с адресом и параметрами подключения. Например, вот так:  */
     public static final String JDBC_URL="jdbc:mysql://cat.world:3306/allcats";
     public static final String JDBC_USERNAME="iamacat";
     public static final String JDBC_PASSWORD="iamapet";

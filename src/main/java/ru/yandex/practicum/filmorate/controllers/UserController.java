@@ -26,7 +26,7 @@ public class UserController {
 
     @GetMapping("/{id}")              // получение пользователя по id
     public User getUser(@PathVariable Integer id) {
-        return userService.getUser(id);
+        return userService.getUserById(id);
     }
 
     @PostMapping                     // создание пользователя
@@ -41,12 +41,14 @@ public class UserController {
 
 //------------------------------------------- REST ---------------------------------------------------------------------
     @PutMapping("/{id}/friends/{friendId}")  // обновление пользователя по id
-    public User addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+    public User addFriend(@Valid @PathVariable Integer id,
+                          @Valid @PathVariable Integer friendId) {
         return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")  // удаление пользователя по id
-    public void removeFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+    public void removeFriend(@Valid @PathVariable Integer id,
+                             @Valid @PathVariable Integer friendId) {
         userService.removeFriend(id, friendId);
     }
 

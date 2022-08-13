@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -22,6 +21,69 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
+//------------------------------ ВЗАИМОДЕЙСТВИЕ С ПОЛЬЗОВАТЕЛЕМ --------------------------------------------------------
+    public List<User> findAll() {  // получение списка всех пользователей
+        return userStorage.getAll();
+    }
+
+    public User getUserById(Integer id) {           // Получение пользователя по id
+        return userStorage.getFindById(id).orElseThrow(
+                () -> new NotFoundException("Пользователя с id " + id + " не существует!")
+        );
+    }
+
+    public User add(User user) {            // создание пользователя
+        checkUser(user);
+        return userStorage.add(user);
+    }
+
+    public User update(User user) {         // обновление пользователя
+        checkUser(user);
+        return userStorage.update(user);
+    }
+
+//------------------------------ ДРУЗЬЯ: ПОЛУЧИТЬ/ДОБАВИТЬ/УДАЛИТЬ ------------------------------------------------------
+    public User addFriend(Integer id, Integer friendId) {          // Добавить друга
+        User user = getUserById(id);
+        User friend = getUserById(friendId);
+        if (!user.getFriends().contains(friendId)) {
+            userStorage.addFriend(id, friendId);
+        }
+        if (friend.getFriends().contains(id)) {
+            userStorage.confirmFriend(id, friendId);
+            userStorage.confirmFriend(friendId, id);
+        }
+        return user;
+    }
+
+    public void removeFriend(Integer id, Integer friendId) {    // Удалить друга
+        User user = getUserById(id);
+        User friend = getUserById(friendId);
+        if (user.getFriends().contains(friendId)) {
+            userStorage.deleteFriend(id, friendId);
+            userStorage.deleteFriend(friendId, id);
+        }
+    }
+
+    public List<User> getFriendsOfUser(Integer id) {          // Получить друзей пользователя
+        User user = getUserById(id);
+        return user.getFriends()
+                .stream()
+                .map(this::getUserById)
+                .collect(Collectors.toList());
+    }
+
+    public List<User> getMutualFriends(Integer id, Integer id1) {     // Получить общих друзей
+        User user1 = getUserById(id);
+        User user2 = getUserById(id1);
+        return user1.getFriends()
+                .stream()
+                .filter(user2.getFriends()::contains)
+                .map(this::getUserById)
+                .collect(Collectors.toList());
+    }
+
+//---------------------------- ПРОВЕРКА ПОЛЬЗОВАТЕЛЯ -------------------------------------------------------------------
     public static void checkUser(User user) {
         String email = user.getEmail();
         if (email == null || email.isBlank() || !email.contains("@")) {
@@ -40,72 +102,9 @@ public class UserService {
         }
     }
 
-//------------------------------ ВЗАИМОДЕЙСТВИЕ С ПОЛЬЗОВАТЕЛЕМ --------------------------------------------------------
-    public List<User> findAll() {  // получение списка всех пользователей
-        return userStorage.getAll();
-    }
-
-    public User add(User user) {            // создание пользователя
-        return userStorage.add(user);
-    }
-
-    public User update(User user) {         // обновление пользователя
-        return userStorage.update(user);
-    }
-
-//------------------------------ ДРУЗЬЯ ПОЛУЧИТЬ/ДОБАВИТЬ/УДАЛИТЬ ------------------------------------------------------
-    public User addFriend(Integer id, Integer friendId) {          // Добавить друга
-        User user = getUser(id);
-        User friend = getUser(friendId);
-        if (!user.getFriends().contains(friendId)) {
-            userStorage.addFriend(id, friendId);
-        }
-        if (friend.getFriends().contains(id)) {
-            userStorage.confirmFriend(id, friendId);
-            userStorage.confirmFriend(friendId, id);
-        }
-        return user;
-    }
-
-    public User removeFriend(Integer id, Integer friendId) {    // Удалить друга
-        User user = getUser(id);
-        User friend = getUser(friendId);
-        if (user.getFriends().contains(friendId)) {
-            userStorage.deleteFriend(id, friendId);
-            userStorage.deleteFriend(friendId, id);
-        }
-        return user;
-    }
-
-    public List<User> getFriendsOfUser(Integer id) {          // Получить друзей пользователя
-        User user = getUser(id);
-        return user.getFriends()
-                .stream()
-                .map(this::getUser)
-                .collect(Collectors.toList());
-    }
-
-    public List<User> getMutualFriends(Integer id, Integer id1) {     // Получить общих друзей
-        User user1 = getUser(id);
-        User user2 = getUser(id1);
-        return user1.getFriends()
-                .stream()
-                .filter(user2.getFriends()::contains)
-                .map(this::getUser)
-                .collect(Collectors.toList());
-    }
-
-//----------------------------------------------------------------------------------------------------------------------
-    public User getUser(Integer id) {           // Получение пользователя по id
-        return userStorage.getFindById(id).orElseThrow(
-                () -> new NotFoundException("Пользователя с id = " + id + " не существует!")
-        );
-    }
-
     public void checkUserForExist(Integer id) {
         if (!userStorage.isUserExist(id)) {
-            throw new NotFoundException("Пользователя с id = " + id + " не существует!");
+            throw new NotFoundException("Пользователя с id " + id + " не существует!");
         }
     }
-
 }

@@ -23,22 +23,6 @@ public class FilmService {
         this.userService = userService;
     }
 
-    public static void checkFilm(Film film) {
-        String name = film.getName();
-        if (name == null || name.isBlank()) {
-            throw new ValidationException("Название фильма не может быть пустым!");
-        }
-        if (film.getDescription() != null && film.getDescription().length() > 200) {
-            throw new ValidationException("Максимальная фильма длина описания — 200 символов!");
-        }
-        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года!");
-        }
-        if (film.getDuration() != null && film.getDuration() <= 0) {
-            throw new ValidationException("Продолжительность фильма должна быть положительной!");
-        }
-    }
-
 //------------------------------ ВЗАИМОДЕЙСТВИЕ С ФИЛЬМОМ --------------------------------------------------------------
     public List<Film> findAll() {   // получение всех фильмов
         return filmStorage.getAll();
@@ -51,10 +35,13 @@ public class FilmService {
     }
 
     public Film add(Film film) {             // добавление фильма
+        checkFilm(film);
         return filmStorage.add(film);
     }
 
     public Film update(Film film) {          // обновление фильма
+        checkFilm(film);
+        checkFilmForExist(film.getId());
         return filmStorage.update(film);
     }
 
@@ -68,7 +55,7 @@ public class FilmService {
         return film;
     }
 
-    public Film removeLike(Integer id, Integer userId) {    // Удалить Лайк
+    public Film removeLike(Integer id, Integer userId) {      // Удалить Лайк
         Film film = getFilm(id);
         userService.checkUserForExist(userId);
         if (film.getLike().contains(userId)) {
@@ -87,11 +74,26 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
-    public void checkFilmForExist(Integer id) {
-        if (!filmStorage.isFilmExist(id)) {
-            throw new NotFoundException("Фильма с id = " + id + " не существует!");
+//--------------------------------- ПРОВЕРКА ФИЛЬМА --------------------------------------------------------------------
+    public static void checkFilm(Film film) {
+        String name = film.getName();
+        if (name == null || name.isBlank()) {
+            throw new ValidationException("Название фильма не может быть пустым!");
+        }
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
+            throw new ValidationException("Максимальная фильма длина описания — 200 символов!");
+        }
+        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года!");
+        }
+        if (film.getDuration() != null && film.getDuration() <= 0) {
+            throw new ValidationException("Продолжительность фильма должна быть положительной!");
         }
     }
 
-//----------------------------------------------------------------------------------------------------------------------
+    public void checkFilmForExist(Integer id) {
+        if (!filmStorage.isFilmExist(id)) {
+            throw new NotFoundException("Фильма с id " + id + " не существует!");
+        }
+    }
 }

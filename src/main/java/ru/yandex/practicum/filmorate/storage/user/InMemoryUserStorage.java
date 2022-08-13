@@ -53,7 +53,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (users.containsKey(user.getId())) {
             users.put(user.getId(), user);
         } else {
-            throw new ValidationException("Нет такого пользователя");
+            throw new ValidationException("Пользователь не найден");
         }
         return user;
     }
@@ -81,6 +81,10 @@ public void addFriend(Integer userId, Integer friendId) {
 
 //------------------------------ ВАЛИДАЦИЯ -----------------------------------------------------------------------------
     public void validation(User userVal) {
+        if (userVal.getId() < 0) {
+            log.info("id пользователя не может быть отрицательным значением");
+            throw new ValidationException("id пользователя не может быть отрицательным значением");
+        }
         if (userVal.getEmail().isBlank() || !(userVal.getEmail().contains("@"))) {
             log.info("Электронная почта не может быть пустой и должна содержать символ \"@\"");
             throw new ValidationException("Ошибка! Электронная почта не может быть пустой и должна содержать символ \"@\"");

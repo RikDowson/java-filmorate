@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,30 +27,30 @@ public class FilmController {
     }
 
     @PostMapping                              // добавление фильма
-    public Film addFilm(@RequestBody Film film) {
+    public Film addFilm(@Valid @RequestBody Film film) {
         return filmService.add(film);
     }
 
     @PutMapping                               // обновление фильма
-    public Film updateFilm(@RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         return filmService.update(film);
     }
 
 //-----------------------------------------  REST ----------------------------------------------------------------------
     @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
+    public void addLike(@Valid @PathVariable Integer id, @PathVariable Integer userId) {
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film deleteLike(@PathVariable Integer id,
-                           @PathVariable Integer userId) {
+    public Film deleteLike(@Valid @PathVariable Integer id,
+                           @Valid @PathVariable Integer userId) {
         return filmService.removeLike(id, userId);
     }
 
     @GetMapping("/popular")
     public List<Film> getTopTenFilms(@RequestParam(defaultValue = "10") Integer count) {
-        if (count <= 0) {
+        if (count <= 0 || count > 10) {
             throw new IncorrectParameterException("count");
         }
         return filmService.getTopTenFilms(count);
