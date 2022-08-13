@@ -20,6 +20,13 @@ public class FilmDbStorage implements FilmStorage {
     private final MpaDbStorage mpaDbStorage;
     private final GenreDbStorage genreDbStorage;
 
+    @Autowired
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage, GenreDbStorage genreDbStorage) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.mpaDbStorage = mpaDbStorage;
+        this.genreDbStorage = genreDbStorage;
+    }
+
 //--------------------------------------- КОНСТАНТЫ --------------------------------------------------------------------
     private static final String SQL_FIND_ALL = "SELECT * FROM PUBLIC.FILMS ORDER BY ID;";
     private static final String SQL_FIND_BY_ID = "SELECT * FROM PUBLIC.FILMS WHERE ID = ?;";
@@ -44,13 +51,6 @@ public class FilmDbStorage implements FilmStorage {
             " FROM PUBLIC.FILM_GENRES WHERE FILM_ID = ? ORDER BY GENRE_ID;";
 
 //----------------------------------------------------------------------------------------------------------------------
-
-    @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage, GenreDbStorage genreDbStorage) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.mpaDbStorage = mpaDbStorage;
-        this.genreDbStorage = genreDbStorage;
-    }
 
     @Override
     public List<Film> getAll() {

@@ -17,6 +17,11 @@ import java.util.Optional;
 public class GenreDbStorage implements GenreStorage {
     private static JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
+    @Autowired
+    public GenreDbStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
 //--------------------------------------- КОНСТАНТЫ --------------------------------------------------------------------
     private static final String SQL_GET_ALL_GENRE = "SELECT * FROM PUBLIC.GENRES ORDER BY ID;";
     private static final String SQL_FIND_BY_ID = "SELECT * FROM PUBLIC.GENRES WHERE ID = ?;";
@@ -24,12 +29,6 @@ public class GenreDbStorage implements GenreStorage {
     private static final String SQL_DELETE_GENRE = "DELETE FROM PUBLIC.FILM_GENRES WHERE FILM_ID = ?;";
 
 //----------------------------------------------------------------------------------------------------------------------
-
-
-    @Autowired
-    public GenreDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public List<Genre> getAll() {

@@ -106,12 +106,12 @@ class UserDbStorageTest {
         String loginNew = "Vitaly";
         String emailNew = "vit@mail.ru";
         LocalDate birthdayNew = LocalDate.of(1991, 2, 12);
-        User user = userDbStorage.update(new User(2, emailNew, loginNew, nameNew, birthdayNew, null));
+        User user = userDbStorage.update(new User(2, emailNew, nameNew, loginNew, birthdayNew, null));
 
         Assertions.assertEquals(2, user.getId(), "Некорректное значение поле ID!");
+        Assertions.assertEquals(emailNew, user.getEmail(), "Некорректное значение поле EMAIL!");
         Assertions.assertEquals(nameNew, user.getName(), "Некорректное значение поле NAME!");
         Assertions.assertEquals(loginNew, user.getLogin(), "Некорректное значение поле LOGIN!");
-        Assertions.assertEquals(emailNew, user.getEmail(), "Некорректное значение поле EMAIL!");
         Assertions.assertEquals(birthdayNew, user.getBirthday(), "Некорректное значение поле BIRTHDAY!");
     }
 
