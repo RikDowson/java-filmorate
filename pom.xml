@@ -26,7 +26,8 @@
 		<dependency> 				<!-- основные зависимости Spring JDBC и класс автоконфигурации для Spring Boot.-->
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jdbc</artifactId>
-		</dependency>
+            <version>2.7.2</version>
+        </dependency>
 
 		<dependency>				<!-- драйвер postgresql -->
 			<groupId>org.postgresql</groupId>
@@ -44,17 +45,20 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<version>2.7.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<version>2.7.2</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
+			<version>2.7.2</version>
 		</dependency>
 
 		<dependency>

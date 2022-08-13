@@ -13,12 +13,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Component
+@Component("GenreDbStorage")
 public class GenreDbStorage implements GenreStorage {
-    private final JdbcTemplate jdbcTemplate;
+    private static JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
+//--------------------------------------- КОНСТАНТЫ --------------------------------------------------------------------
     private static final String SQL_GET_ALL_GENRE = "SELECT * FROM PUBLIC.GENRES ORDER BY ID;";
     private static final String SQL_FIND_BY_ID = "SELECT * FROM PUBLIC.GENRES WHERE ID = ?;";
+    private static final String SQL_ADD_GENRE = "INSERT INTO PUBLIC.FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?);";
+    private static final String SQL_DELETE_GENRE = "DELETE FROM PUBLIC.FILM_GENRES WHERE FILM_ID = ?;";
+
+//----------------------------------------------------------------------------------------------------------------------
 
 
     @Autowired
@@ -30,6 +35,14 @@ public class GenreDbStorage implements GenreStorage {
     public List<Genre> getAll() {
         log.info("Получены все жанры");
         return jdbcTemplate.query(SQL_GET_ALL_GENRE, (rs, rowNum) -> makeGenre(rs));
+    }
+
+    public static void addGenre(Integer film_id, Integer genre_id) {
+        jdbcTemplate.update(SQL_ADD_GENRE, film_id, genre_id);
+    }
+
+    public static void deleteGenres(Integer film_id) {
+        jdbcTemplate.update(SQL_DELETE_GENRE, film_id);
     }
 
     @Override
@@ -51,4 +64,5 @@ public class GenreDbStorage implements GenreStorage {
                 rs.getString("name")
         );
     }
+
 }

@@ -29,7 +29,7 @@ public class FilmDbStorage implements FilmStorage {
             " DURATION," +
             " MPA_ID)\n" +
             "VALUES (?, ?, ?, ?, ?);";
-    private static final String SQL_UPDATE = "UPDATE PUBLIC.FILMS " +
+    private static final String SQL_UPDATE_FILM = "UPDATE PUBLIC.FILMS " +
             "SET NAME = ?, " +
             "DESCRIPTION = ?, " +
             "RELEASE_DATE = ?, " +
@@ -39,10 +39,9 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_ADD_LIKE = "INSERT INTO PUBLIC.LIKES (FILM_ID, USER_ID) VALUES (?, ?);";
     private static final String SQL_DELETE_LIKE = "DELETE FROM PUBLIC.LIKES WHERE FILM_ID = ? AND USER_ID = ?;";
     private static final String SQL_DELETE_LIKE_ID = "SELECT USER_ID FROM PUBLIC.LIKES WHERE FILM_ID = ?;";
+
     private static final String SQL_GET_GENRE_BY_FILM_ID = "SELECT GENRE_ID" +
             " FROM PUBLIC.FILM_GENRES WHERE FILM_ID = ? ORDER BY GENRE_ID;";
-    private static final String SQL_ADD_GENRE = "INSERT INTO PUBLIC.FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?);";
-    private static final String SQL_DELETE_GENRE = "DELETE FROM PUBLIC.FILM_GENRES WHERE FILM_ID = ?;";
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -95,7 +94,7 @@ public class FilmDbStorage implements FilmStorage {
                 keyHolder);
         film.setId(keyHolder.getKey().intValue());
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
-            film.getGenres().forEach(g -> addGenre(film.getId(), g.getId()));
+            film.getGenres().forEach(g -> GenreDbStorage.addGenre(film.getId(), g.getId()));
         }
         log.info("Добавлен фильм с идентификатором: {}", film.getId());
         return film;
@@ -103,7 +102,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        jdbcTemplate.update(SQL_UPDATE,
+        jdbcTemplate.update(SQL_UPDATE_FILM,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
@@ -112,9 +111,9 @@ public class FilmDbStorage implements FilmStorage {
                 film.getId());
         film.setMpa(mpaDbStorage.findById(film.getMpa().getId()).orElse(null));
         if (film.getGenres() != null) {
-            deleteGenres(film.getId());
+            GenreDbStorage.deleteGenres(film.getId());
             if (!film.getGenres().isEmpty()) {
-                film.getGenres().forEach(g -> addGenre(film.getId(), g.getId()));
+                film.getGenres().forEach(g -> GenreDbStorage.addGenre(film.getId(), g.getId()));
                 film.setGenres(getGenresByFilmId(film.getId()));
             }
         }
@@ -155,14 +154,6 @@ public class FilmDbStorage implements FilmStorage {
             return genreIds.stream().map(id -> genreDbStorage.findById(id)
                     .orElse(new Genre())).collect(Collectors.toSet());
         }
-    }
-
-    private void addGenre(Integer film_id, Integer genre_id) {
-        jdbcTemplate.update(SQL_ADD_GENRE, film_id, genre_id);
-    }
-
-    private void deleteGenres(Integer film_id) {
-        jdbcTemplate.update(SQL_DELETE_GENRE, film_id);
     }
 
     private Film makeFilm(ResultSet rs) throws SQLException {
