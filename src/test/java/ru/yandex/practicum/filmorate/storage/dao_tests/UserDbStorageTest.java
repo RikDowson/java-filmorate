@@ -99,24 +99,9 @@ class UserDbStorageTest {
         Assertions.assertFalse(isUserExist, "Пользователь существует!");
     }
 
+
     @Test
     @Order(7)
-    void update() {
-        String nameNew = "Vitaly";
-        String loginNew = "Vitaly";
-        String emailNew = "vit@mail.ru";
-        LocalDate birthdayNew = LocalDate.of(1991, 2, 12);
-        User user = userDbStorage.update(new User(2, emailNew, nameNew, loginNew, birthdayNew, null));
-
-        Assertions.assertEquals(2, user.getId(), "Некорректное значение поле ID!");
-        Assertions.assertEquals(emailNew, user.getEmail(), "Некорректное значение поле EMAIL!");
-        Assertions.assertEquals(nameNew, user.getName(), "Некорректное значение поле NAME!");
-        Assertions.assertEquals(loginNew, user.getLogin(), "Некорректное значение поле LOGIN!");
-        Assertions.assertEquals(birthdayNew, user.getBirthday(), "Некорректное значение поле BIRTHDAY!");
-    }
-
-    @Test
-    @Order(8)
     void addFriend() {
         userDbStorage.addFriend(1, 2);
 
@@ -132,7 +117,7 @@ class UserDbStorageTest {
     }
 
     @Test
-    @Order(9)
+    @Order(8)
     void confirmFriend() {
         userDbStorage.confirmFriend(1, 2);
         Boolean isConfirmed = userDbStorage.getStatusFriends(1, 2);
@@ -140,7 +125,7 @@ class UserDbStorageTest {
     }
 
     @Test
-    @Order(10)
+    @Order(9)
     void deleteFriend() {
         userDbStorage.deleteFriend(1, 2);
         Set<Integer> friendIds = userDbStorage.getFriendsById(1);

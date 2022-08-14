@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
 
 import java.time.LocalDate;
@@ -31,6 +32,8 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 class FilmDbStorageTest {
     private final FilmDbStorage filmDbStorage;
     private final UserDbStorage userDbStorage;
+    private final LikeDbStorage likeDbStorage;
+
     private final static String NAME = "Аватар";
     private final static String DESCRIPTION = "Конфликт колонистов-десантников и местных жителей";
     private final static Integer DURATION = 180;
@@ -155,7 +158,7 @@ class FilmDbStorageTest {
                 "teador2022@gmail.com", "Kirill", "Rik_Dowson",
                 LocalDate.of(1991, 7, 1), null));
         userId = user.getId();
-        filmDbStorage.addLike(1, userId);
+        likeDbStorage.addLike(1, userId);
 
         Set<Integer> userIds = filmDbStorage.getLikesById(1);
         Assertions.assertFalse(userIds.isEmpty(), "Список лайков пуст!");
@@ -166,7 +169,7 @@ class FilmDbStorageTest {
     @Test
     @Order(9)
     void deleteLike() {
-        filmDbStorage.deleteLike(1, userId);
+        likeDbStorage.deleteLike(1, userId);
         Set<Integer> userIds = filmDbStorage.getLikesById(1);
         Assertions.assertTrue(userIds.isEmpty(), "Список лайков не пуст!");
     }

@@ -43,10 +43,8 @@ public class FilmDbStorage implements FilmStorage {
             "DURATION = ?, " +
             "MPA_ID = ? " +
             "WHERE id = ?;";
-    private static final String SQL_ADD_LIKE = "INSERT INTO PUBLIC.LIKES (FILM_ID, USER_ID) VALUES (?, ?);";
-    private static final String SQL_DELETE_LIKE = "DELETE FROM PUBLIC.LIKES WHERE FILM_ID = ? AND USER_ID = ?;";
-    private static final String SQL_DELETE_LIKE_ID = "SELECT USER_ID FROM PUBLIC.LIKES WHERE FILM_ID = ?;";
 
+    private static final String SQL_DELETE_LIKE_ID = "SELECT USER_ID FROM PUBLIC.LIKES WHERE FILM_ID = ?;";
     private static final String SQL_GET_GENRE_BY_FILM_ID = "SELECT GENRE_ID" +
             " FROM PUBLIC.FILM_GENRES WHERE FILM_ID = ? ORDER BY GENRE_ID;";
 
@@ -122,31 +120,18 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-//--------------------------------------- ЛАЙКИ ------------------------------------------------------------------------
-    @Override
-    public void addLike(Integer filmId, Integer userId) {
-        jdbcTemplate.update(SQL_ADD_LIKE, filmId, userId);
-        getById(filmId).ifPresent(f -> f.setLike(getLikesById(filmId)));
-    }
-
-    @Override
-    public void deleteLike(Integer filmId, Integer userId) {
-        jdbcTemplate.update(SQL_DELETE_LIKE, filmId, userId);
-        getById(filmId).ifPresent(f -> f.setLike(getLikesById(filmId)));
-    }
 
     public Set<Integer> getLikesById(Integer id) {
         List<Integer> likes = jdbcTemplate.query(SQL_DELETE_LIKE_ID, (rs, rowNum) -> getLikeUserId(rs), id);
         return Set.copyOf(likes);
     }
-//----------------------------------------------------------------------------------------------------------------------
 
     @Override
     public boolean isFilmExist(Integer id) {
         return getById(id).isPresent();
     }
 
-    private Set<Genre> getGenresByFilmId(Integer film_id) {
+    public Set<Genre> getGenresByFilmId(Integer film_id) {
         List<Integer> genreIds = jdbcTemplate.query(SQL_GET_GENRE_BY_FILM_ID, (rs, rowNum) -> getGenreId(rs), film_id);
         if (genreIds.isEmpty()) {
             return null;
@@ -156,7 +141,7 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
-    private Film makeFilm(ResultSet rs) throws SQLException {
+    public Film makeFilm(ResultSet rs) throws SQLException {
         Integer mpa_id = rs.getInt("mpa_id");
         Mpa mpa = mpaDbStorage.findById(mpa_id).orElse(new Mpa());
         return new Film(rs.getInt("id"),
@@ -170,11 +155,11 @@ public class FilmDbStorage implements FilmStorage {
         );
     }
     // получить лайк идентификатор пользователя
-    private Integer getLikeUserId(ResultSet rs) throws SQLException {
+    public Integer getLikeUserId(ResultSet rs) throws SQLException {
         return rs.getInt("user_id");
     }
     // получить идентификатор жанра
-    private Integer getGenreId(ResultSet rs) throws SQLException {
+    public Integer getGenreId(ResultSet rs) throws SQLException {
         return rs.getInt("genre_id");
     }
 }

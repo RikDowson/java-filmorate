@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.dao.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.time.LocalDate;
@@ -17,10 +18,14 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
 
+    private final LikeStorage likeStorage;
+
     @Autowired          // Автоматически внедряем зависимость filmStorage, userService
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService,
+                       @Qualifier("likeDbStorage") LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.likeStorage = likeStorage;
     }
 
 //------------------------------ ВЗАИМОДЕЙСТВИЕ С ФИЛЬМОМ --------------------------------------------------------------
@@ -50,7 +55,7 @@ public class FilmService {
         Film film = getFilm(id);
         userService.checkUserForExist(userId);
         if (!film.getLike().contains(userId)) {
-            filmStorage.addLike(id, userId);
+            likeStorage.addLike(id, userId);
         }
         return film;
     }
@@ -59,7 +64,7 @@ public class FilmService {
         Film film = getFilm(id);
         userService.checkUserForExist(userId);
         if (film.getLike().contains(userId)) {
-            filmStorage.deleteLike(id, userId);
+            likeStorage.deleteLike(id, userId);
         }
         return film;
     }
