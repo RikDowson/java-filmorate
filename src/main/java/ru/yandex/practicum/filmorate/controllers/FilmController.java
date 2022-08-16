@@ -1,75 +1,63 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
-@Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    // Loger
-    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
-    private final Map<Integer, Film> films = new HashMap<>();
-    protected Integer countId = 1;
+    private final FilmService filmService;
 
-    public int generateFilmId() {
-        return countId++;
+    @Autowired         // Автоматически внедряем зависимость filmService
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
 
-    @GetMapping                                 // получение всех фильмов
-    public Collection<Film> findAll()  throws ValidationException {
-        log.debug("Общее количество фильмов: {}", films.size());  // логируем факт получения запроса
-        return films.values();
+
+    @GetMapping                               // получение всех фильмов
+    public Collection<Film> findAllFilms() {
+        return filmService.findAll();
     }
 
-    @PostMapping                               // добавление фильма
-    public Film create(@Valid @RequestBody Film film)  throws ValidationException {
-        int id = generateFilmId();
-        film.setId(id);
-        validation(film);
-        log.debug("Добавлен новый фильм: {}{}", id, film.getName());
-        films.put(film.getId(), film);
-        return film;
+    @PostMapping                              // добавление фильма
+    public Film addFilm(@Valid @RequestBody Film film) {
+        return filmService.add(film);
     }
 
-    @PutMapping                             // обновление фильма
-    public Film put(@Valid @RequestBody Film film)  throws ValidationException {
-        validation(film);
-        log.debug("Объект POST /film обновлён");
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-        } else {
-            throw new ValidationException("Нет такого фильма");
-        }
-        return film;
+    @PutMapping                               // обновление фильма
+    public Film updateFilm(@Valid @RequestBody Film film) {
+        return filmService.update(film);
     }
 
-    public void validation(Film filmVal) {
-        if (filmVal.getName() == null || filmVal.getName().isBlank()) {
-            log.debug("Название фильма не может быть пустым");
-            throw new ValidationException("Ошибка ввода! Название фильма не может быть пустым.");
+//-----------------------------------------  REST ----------------------------------------------------------------------
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@Valid @PathVariable Integer id, @PathVariable Integer userId) {
+        filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@Valid @PathVariable Integer id,
+                           @Valid @PathVariable Integer userId) {
+        return filmService.removeLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getTopTenFilms(@RequestParam(defaultValue = "10") Integer count) {
+        if (count <= 0 || count > 10) {
+            throw new IncorrectParameterException("count");
         }
-        if (filmVal.getDescription().length() > 200) {
-            log.debug("Максимальная длина описания — 200 символов");
-            throw new ValidationException("Ошибка ввода! Максимальная длина описания — 200 символов");
-        }
-        if (filmVal.getReleaseDate().isBefore(LocalDate.of(1895, 12, 27))) {
-            log.debug("Дата релиза — не раньше 28 декабря 1895 года");
-            throw new ValidationException("Ошибка ввода! Дата релиза — не раньше 28 декабря 1895 года");
-        }
-        if (filmVal.getDuration() <= 0) {
-            log.debug("Продолжительность фильма должна быть положительной");
-            throw new ValidationException("Ошибка ввода! продолжительность фильма должна быть положительной.");
-        }
+        return filmService.getTopTenFilms(count);
+    }
+
+    @GetMapping("/{id}")                    // получение фильма по ID
+    public Film getFilm(@PathVariable Integer id) {
+        return filmService.getFilm(id);
     }
 }
